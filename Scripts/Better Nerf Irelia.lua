@@ -1,6 +1,7 @@
 if myHero.charName ~= "Irelia" then return end
- 
-local version = "1.00"
+require 'VPrediction'
+require 'SOW'
+local version = "1.05"
 local Author = "si7ziTV"
 local TESTVERSION = false
 local AUTOUPDATE = true
@@ -27,6 +28,37 @@ else
 AutoupdaterMsg("Error downloading version info")
 end
 end
+
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------
+
+local REQUIRED_LIBS = {
+		["SOW"] = "https://bitbucket.org/honda7/bol/raw/master/Common/SOW.lua",
+	}
+
+local DOWNLOADING_LIBS, DOWNLOAD_COUNT = false, 0
+local SELF_NAME = GetCurrentEnv() and GetCurrentEnv().FILE_NAME or ""
+
+function AfterDownload()
+	DOWNLOAD_COUNT = DOWNLOAD_COUNT - 1
+	if DOWNLOAD_COUNT == 0 then
+		DOWNLOADING_LIBS = false
+		print("<b>[Irelia]: Required libraries downloaded successfully, please reload (double F9).</b>")
+	end
+end
+
+for DOWNLOAD_LIB_NAME, DOWNLOAD_LIB_URL in pairs(REQUIRED_LIBS) do
+	if FileExist(LIB_PATH .. DOWNLOAD_LIB_NAME .. ".lua") then
+		require(DOWNLOAD_LIB_NAME)
+	else
+		DOWNLOADING_LIBS = true
+		DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1
+		DownloadFile(DOWNLOAD_LIB_URL, LIB_PATH .. DOWNLOAD_LIB_NAME..".lua", AfterDownload)
+	end
+end
+
+if DOWNLOADING_LIBS then return end
 
 -----------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------
@@ -66,6 +98,8 @@ local Qscaling = 1
 local Rscaling = 0.6
 
 function OnLoad()
+	VP = VPrediction()
+	iSOW = SOW(VP)
 	_Menu()
 	_Init()
 		PrintChat("<font color=\"#FE642E\"><b>" ..">>  Better nerf Irelia</b> by si7ziTV has been loaded")
@@ -102,6 +136,10 @@ function _Menu()
 		menu:addParam("Version", "Version", SCRIPT_PARAM_INFO, version)
 		menu:addParam("Author", "Author", SCRIPT_PARAM_INFO, IreliaAuthor)
 	
+			-- Orbwalkstuff --
+			menu:addSubMenu("Irelia: Orbwalk", "Orbwalk")
+				iSOW:LoadToMenu(menu.Orbwalk)
+			
 			--[Menu: Combo]--
 			menu:addSubMenu("Irelia: Combo", "combo")
 				menu.combo:addParam("combokey","Combo Key", SCRIPT_PARAM_ONKEYDOWN, false, 32)
@@ -145,7 +183,7 @@ function _Menu()
 			menu:addSubMenu("Irelia: Killsteal", "killsteal")
 				menu.killsteal:addParam("killstealQ", "Use Smart Killsteal (Q)", SCRIPT_PARAM_ONOFF, true)
 				--menu.killsteal:addParam("killstealR", "Cast (R) if killable", SCRIPT_PARAM_ONOFF, true)
-				--menu.killsteal:addParam("ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
+				menu.killsteal:addParam("ignite", "Use Auto Ignite", SCRIPT_PARAM_ONOFF, true)
 				--menu.killsteal:addParam("items", "Use Items", SCRIPT_PARAM_ONOFF, true)
 
 			--[Menu: Misc]--
@@ -382,8 +420,6 @@ function _killstealR()
 end
 
 function _ignite()
-	if not menu.killsteal.killstealQ and not Qready and
-	(GetDistance(enemy) > 125) then
   if IREADY then
         local ignitedmg = 0
         for j = 1, heroManager.iCount, 1 do
@@ -397,7 +433,6 @@ function _ignite()
                 end
             end
         end
-    end
 
 --[Mana Management]--
 function _ManaHarras()
