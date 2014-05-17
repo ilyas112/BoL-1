@@ -134,7 +134,7 @@ function _Menu()
 		
 		--[Version, Author]--
 		menu:addParam("Version", "Version", SCRIPT_PARAM_INFO, version)
-		menu:addParam("Author", "Author", SCRIPT_PARAM_INFO, IreliaAuthor)
+		menu:addParam("Author", "Author", SCRIPT_PARAM_INFO, Author)
 	
 			-- Orbwalkstuff --
 			menu:addSubMenu("Irelia: Orbwalk", "Orbwalk")
