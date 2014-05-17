@@ -1,36 +1,30 @@
-local IreliaVersion = "1.05"
-local IRELIAAUTOUPDATE = true
-local IreliaAuthor = "si7ziTV"
-local IsLoaded = "Better Nerf Irelia"
-if myHero.charName ~= "Irelia" then return end
- 
-local UPDATE_FILE_PATH = SCRIPT_PATH.."Better Nerf Irelia.lua"
-local UPDATE_NAME = "Better Nerf Irelia"
+local version = "0.015"
+local TESTVERSION = false
+
+local AUTOUPDATE = true
+
 local UPDATE_HOST = "raw.github.com"
-local UPDATE_PATH = "/si7ziTV/BoL/master/Scripts/Better%20Nerf%20Irelia.lua".."?rand="..math.random(1, 1000)
+local UPDATE_PATH = "//si7ziTV/BoL/master/Scripts/Better%20Nerf%20Irelia.lua".."?rand="..math.random(1,10000)
 local UPDATE_FILE_PATH = SCRIPT_PATH.."Better Nerf Irelia.lua"
 local UPDATE_URL = "https://"..UPDATE_HOST..UPDATE_PATH
- 
-function AutoupdaterMsg(msg) print("<font color=\"#73DCFF\">["..IsLoaded.."]:</font> <font color=\"#FFDFBF\">"..msg..".</font>") end
-if IRELIAAUTOUPDATE then
-    local ServerData = GetWebResult(UPDATE_HOST, UPDATE_PATH)
-    if ServerData then
-        local ServerVersion = string.match(ServerData, "local IreliaVersion = \"%d+.%d+\"")
-        ServerVersion = string.match(ServerVersion and ServerVersion or "", "%d+.%d+")
-        if ServerVersion then
-            ServerVersion = tonumber(ServerVersion)
-            if tonumber(IreliaVersion) < ServerVersion then
-                AutoupdaterMsg("A new version is available: ["..ServerVersion.."]")
-                AutoupdaterMsg("The script is updating... please don't press [F9]!")
-                DelayAction(function() DownloadFile(UPDATE_URL, UPDATE_FILE_PATH, function ()
-				AutoupdaterMsg("Successfully updated! ("..IreliaVersion.." -> "..ServerVersion.."), Please reload (double [F9]) for the updated version!") end) end, 3)
-            else
-                AutoupdaterMsg("Your script is already the latest version: ["..ServerVersion.."]")
-            end
-        end
-    else
-        AutoupdaterMsg("Error downloading version info!")
-    end
+
+function AutoupdaterMsg(msg) print("<font color=\"#6699ff\"><b>Better Nerf Irelia:</b></font> <font color=\"#FFFFFF\">"..msg..".</font>") end
+if AUTOUPDATE then
+local ServerData = GetWebResult(UPDATE_HOST, "/si7ziTV/BoL/master/Scripts/Better%20Nerf%20Irelia")
+if ServerData then
+ServerVersion = type(tonumber(ServerData)) == "number" and tonumber(ServerData) or nil
+if ServerVersion then
+if tonumber(version) < ServerVersion then
+AutoupdaterMsg("New version available"..ServerVersion)
+AutoupdaterMsg("Updating, please don't press F9")
+DelayAction(function() DownloadFile(UPDATE_URL, UPDATE_FILE_PATH, function () AutoupdaterMsg("Successfully updated. ("..version.." => "..ServerVersion.."), press F9 twice to load the updated version.") end) end, 3)
+else
+AutoupdaterMsg("You have got the latest version ("..ServerVersion..")")
+end
+end
+else
+AutoupdaterMsg("Error downloading version info")
+end
 end
 
 -----------------------------------------------------------------------------------------------
